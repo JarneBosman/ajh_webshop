@@ -66,6 +66,7 @@ const getLocalizedCmsText = (
   record: Record<string, unknown>,
   key: string,
   language: Language,
+  fallbackToBase = true,
 ): string | undefined => {
   const localizedKey = `${key}Nl`;
   const localizedValue = language === "nl" ? record[localizedKey] : undefined;
@@ -75,7 +76,7 @@ const getLocalizedCmsText = (
     return localizedValue.trim();
   }
 
-  if (typeof baseValue === "string" && baseValue.trim()) {
+  if (fallbackToBase && typeof baseValue === "string" && baseValue.trim()) {
     return baseValue.trim();
   }
 
@@ -110,7 +111,7 @@ const parseHomeContent = (input: unknown, language: Language): CmsHomeContent | 
     "storyPointTwo",
     "storyPointThree",
   ] as const) {
-    const value = getLocalizedCmsText(record, key, language);
+    const value = getLocalizedCmsText(record, key, language, language !== "nl");
     if (value) {
       output[key] = value;
     }
@@ -165,7 +166,7 @@ const parseGenericPageContent = (
   const output: CmsGenericPageContent = {};
 
   for (const key of ["eyebrow", "title", "description", "primaryCta", "secondaryCta"] as const) {
-    const value = getLocalizedCmsText(record, key, language);
+    const value = getLocalizedCmsText(record, key, language, language !== "nl");
     if (value) {
       output[key] = value;
     }
@@ -182,8 +183,8 @@ const parseSeoContent = (input: unknown, language: Language): CmsSeoContent | nu
   const record = input as Record<string, unknown>;
   const output: CmsSeoContent = {};
 
-  const title = getLocalizedCmsText(record, "metaTitle", language);
-  const description = getLocalizedCmsText(record, "metaDescription", language);
+  const title = getLocalizedCmsText(record, "metaTitle", language, language !== "nl");
+  const description = getLocalizedCmsText(record, "metaDescription", language, language !== "nl");
 
   if (title) {
     output.metaTitle = title;
