@@ -76,6 +76,84 @@ interface AppearanceScheme {
   settings: AppearanceSettingsState;
 }
 
+interface CmsSeoState {
+  metaTitle: string;
+  metaDescription: string;
+  ogImage: string;
+}
+
+interface CmsHomeDraftState {
+  heroEyebrow: string;
+  heroEyebrowNl: string;
+  heroTitle: string;
+  heroTitleNl: string;
+  heroDescription: string;
+  heroDescriptionNl: string;
+  heroPrimaryCta: string;
+  heroPrimaryCtaNl: string;
+  heroSecondaryCta: string;
+  heroSecondaryCtaNl: string;
+  heroImage: string;
+  featuredEyebrow: string;
+  featuredEyebrowNl: string;
+  featuredTitle: string;
+  featuredTitleNl: string;
+  featuredDescription: string;
+  featuredDescriptionNl: string;
+  categoriesEyebrow: string;
+  categoriesEyebrowNl: string;
+  categoriesTitle: string;
+  categoriesTitleNl: string;
+  categoriesDescription: string;
+  categoriesDescriptionNl: string;
+  storyEyebrow: string;
+  storyEyebrowNl: string;
+  storyTitle: string;
+  storyTitleNl: string;
+  storyDescription: string;
+  storyDescriptionNl: string;
+  storyPointOne: string;
+  storyPointOneNl: string;
+  storyPointTwo: string;
+  storyPointTwoNl: string;
+  storyPointThree: string;
+  storyPointThreeNl: string;
+}
+
+interface CmsLinkRowState {
+  id: string;
+  label: string;
+  labelNl: string;
+  href: string;
+  external: boolean;
+}
+
+type CmsPageSlug = "home" | "shop" | "configurator" | "cart";
+
+interface CmsGenericDraftState {
+  eyebrow: string;
+  eyebrowNl: string;
+  title: string;
+  titleNl: string;
+  description: string;
+  descriptionNl: string;
+  primaryCta: string;
+  primaryCtaNl: string;
+  secondaryCta: string;
+  secondaryCtaNl: string;
+}
+
+interface CmsMediaAssetRow {
+  id: string;
+  bucket: string;
+  storage_path: string;
+  mime_type: string | null;
+  size_bytes: number | null;
+  alt: string | null;
+  alt_nl: string | null;
+  created_at: string;
+}
+
 interface NewProductState {
   name: string;
   nameNl: string;
@@ -119,6 +197,63 @@ const createInitialAppearanceState = (): AppearanceSettingsState => ({
   heroLayout: "split",
 });
 
+const createInitialCmsSeoState = (): CmsSeoState => ({
+  metaTitle: "",
+  metaDescription: "",
+  ogImage: "",
+});
+
+const createInitialCmsHomeDraftState = (): CmsHomeDraftState => ({
+  heroEyebrow: "",
+  heroEyebrowNl: "",
+  heroTitle: "",
+  heroTitleNl: "",
+  heroDescription: "",
+  heroDescriptionNl: "",
+  heroPrimaryCta: "",
+  heroPrimaryCtaNl: "",
+  heroSecondaryCta: "",
+  heroSecondaryCtaNl: "",
+  heroImage: "",
+  featuredEyebrow: "",
+  featuredEyebrowNl: "",
+  featuredTitle: "",
+  featuredTitleNl: "",
+  featuredDescription: "",
+  featuredDescriptionNl: "",
+  categoriesEyebrow: "",
+  categoriesEyebrowNl: "",
+  categoriesTitle: "",
+  categoriesTitleNl: "",
+  categoriesDescription: "",
+  categoriesDescriptionNl: "",
+  storyEyebrow: "",
+  storyEyebrowNl: "",
+  storyTitle: "",
+  storyTitleNl: "",
+  storyDescription: "",
+  storyDescriptionNl: "",
+  storyPointOne: "",
+  storyPointOneNl: "",
+  storyPointTwo: "",
+  storyPointTwoNl: "",
+  storyPointThree: "",
+  storyPointThreeNl: "",
+});
+
+const createInitialCmsGenericDraftState = (): CmsGenericDraftState => ({
+  eyebrow: "",
+  eyebrowNl: "",
+  title: "",
+  titleNl: "",
+  description: "",
+  descriptionNl: "",
+  primaryCta: "",
+  primaryCtaNl: "",
+  secondaryCta: "",
+  secondaryCtaNl: "",
+});
+
 interface DefaultSelectionRow {
   id: string;
   optionId: string;
@@ -150,6 +285,157 @@ const standardOptionStorageKey = "atelier.admin.defaultSelectionStandardOptionId
 const appearanceSchemesStorageKey = "atelier.admin.appearanceSchemes";
 const productImageBucket = "product-images";
 const appearanceUndoHistoryLimit = 30;
+const cmsHomeSlug = "home";
+const cmsMediaBucket = "cms-media";
+const cmsManagedPageSlugs: CmsPageSlug[] = ["home", "shop", "configurator", "cart"];
+const cmsAdditionalPageSlugs: Array<Exclude<CmsPageSlug, "home">> = [
+  "shop",
+  "configurator",
+  "cart",
+];
+
+const createCmsLinkRow = (): CmsLinkRowState => ({
+  id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
+  label: "",
+  labelNl: "",
+  href: "",
+  external: false,
+});
+
+const asText = (value: unknown) => (typeof value === "string" ? value : "");
+
+const parseCmsHomeDraft = (value: unknown): CmsHomeDraftState => {
+  const defaults = createInitialCmsHomeDraftState();
+
+  if (!value || typeof value !== "object") {
+    return defaults;
+  }
+
+  const source = value as Record<string, unknown>;
+
+  return {
+    heroEyebrow: asText(source.heroEyebrow),
+    heroEyebrowNl: asText(source.heroEyebrowNl),
+    heroTitle: asText(source.heroTitle),
+    heroTitleNl: asText(source.heroTitleNl),
+    heroDescription: asText(source.heroDescription),
+    heroDescriptionNl: asText(source.heroDescriptionNl),
+    heroPrimaryCta: asText(source.heroPrimaryCta),
+    heroPrimaryCtaNl: asText(source.heroPrimaryCtaNl),
+    heroSecondaryCta: asText(source.heroSecondaryCta),
+    heroSecondaryCtaNl: asText(source.heroSecondaryCtaNl),
+    heroImage: asText(source.heroImage),
+    featuredEyebrow: asText(source.featuredEyebrow),
+    featuredEyebrowNl: asText(source.featuredEyebrowNl),
+    featuredTitle: asText(source.featuredTitle),
+    featuredTitleNl: asText(source.featuredTitleNl),
+    featuredDescription: asText(source.featuredDescription),
+    featuredDescriptionNl: asText(source.featuredDescriptionNl),
+    categoriesEyebrow: asText(source.categoriesEyebrow),
+    categoriesEyebrowNl: asText(source.categoriesEyebrowNl),
+    categoriesTitle: asText(source.categoriesTitle),
+    categoriesTitleNl: asText(source.categoriesTitleNl),
+    categoriesDescription: asText(source.categoriesDescription),
+    categoriesDescriptionNl: asText(source.categoriesDescriptionNl),
+    storyEyebrow: asText(source.storyEyebrow),
+    storyEyebrowNl: asText(source.storyEyebrowNl),
+    storyTitle: asText(source.storyTitle),
+    storyTitleNl: asText(source.storyTitleNl),
+    storyDescription: asText(source.storyDescription),
+    storyDescriptionNl: asText(source.storyDescriptionNl),
+    storyPointOne: asText(source.storyPointOne),
+    storyPointOneNl: asText(source.storyPointOneNl),
+    storyPointTwo: asText(source.storyPointTwo),
+    storyPointTwoNl: asText(source.storyPointTwoNl),
+    storyPointThree: asText(source.storyPointThree),
+    storyPointThreeNl: asText(source.storyPointThreeNl),
+  };
+};
+
+const parseCmsGenericDraft = (value: unknown): CmsGenericDraftState => {
+  const defaults = createInitialCmsGenericDraftState();
+
+  if (!value || typeof value !== "object") {
+    return defaults;
+  }
+
+  const source = value as Record<string, unknown>;
+
+  return {
+    eyebrow: asText(source.eyebrow),
+    eyebrowNl: asText(source.eyebrowNl),
+    title: asText(source.title),
+    titleNl: asText(source.titleNl),
+    description: asText(source.description),
+    descriptionNl: asText(source.descriptionNl),
+    primaryCta: asText(source.primaryCta),
+    primaryCtaNl: asText(source.primaryCtaNl),
+    secondaryCta: asText(source.secondaryCta),
+    secondaryCtaNl: asText(source.secondaryCtaNl),
+  };
+};
+
+const parseCmsSeoDraft = (value: unknown): CmsSeoState => {
+  const defaults = createInitialCmsSeoState();
+
+  if (!value || typeof value !== "object") {
+    return defaults;
+  }
+
+  const source = value as Record<string, unknown>;
+
+  return {
+    metaTitle: asText(source.metaTitle),
+    metaDescription: asText(source.metaDescription),
+    ogImage: asText(source.ogImage),
+  };
+};
+
+const parseCmsLinkRows = (value: unknown): CmsLinkRowState[] => {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value
+    .map((entry): CmsLinkRowState | null => {
+      if (!entry || typeof entry !== "object") {
+        return null;
+      }
+
+      const source = entry as Record<string, unknown>;
+      const label = asText(source.label).trim();
+      const href = asText(source.href).trim();
+
+      if (!label || !href) {
+        return null;
+      }
+
+      return {
+        id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
+        label,
+        labelNl: asText(source.labelNl).trim(),
+        href,
+        external: source.external === true,
+      };
+    })
+    .filter((entry): entry is CmsLinkRowState => entry !== null);
+};
+
+const serializeCmsLinkRows = (rows: CmsLinkRowState[]) =>
+  rows
+    .map((row) => ({
+      label: row.label.trim(),
+      labelNl: row.labelNl.trim(),
+      href: row.href.trim(),
+      external: row.external,
+    }))
+    .filter((row) => row.label.length > 0 && row.href.length > 0)
+    .map((row) => ({
+      label: row.label,
+      href: row.href,
+      ...(row.labelNl ? { labelNl: row.labelNl } : {}),
+      ...(row.external ? { external: true } : {}),
+    }));
 
 const createDefaultSelectionRow = (): DefaultSelectionRow => ({
   id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
@@ -255,6 +541,42 @@ export default function AdminPage() {
   const [previewPath, setPreviewPath] = useState("/");
   const [appearanceError, setAppearanceError] = useState("");
   const [appearanceSuccess, setAppearanceSuccess] = useState("");
+  const [loadingCms, setLoadingCms] = useState(false);
+  const [savingCmsDraft, setSavingCmsDraft] = useState(false);
+  const [publishingCms, setPublishingCms] = useState(false);
+  const [cmsError, setCmsError] = useState("");
+  const [cmsSuccess, setCmsSuccess] = useState("");
+  const [cmsHomeDraft, setCmsHomeDraft] = useState<CmsHomeDraftState>(
+    createInitialCmsHomeDraftState,
+  );
+  const [cmsSeoDraft, setCmsSeoDraft] = useState<CmsSeoState>(createInitialCmsSeoState);
+  const [cmsPageDrafts, setCmsPageDrafts] = useState<
+    Record<Exclude<CmsPageSlug, "home">, CmsGenericDraftState>
+  >({
+    shop: createInitialCmsGenericDraftState(),
+    configurator: createInitialCmsGenericDraftState(),
+    cart: createInitialCmsGenericDraftState(),
+  });
+  const [cmsPageSeoDrafts, setCmsPageSeoDrafts] = useState<
+    Record<Exclude<CmsPageSlug, "home">, CmsSeoState>
+  >({
+    shop: createInitialCmsSeoState(),
+    configurator: createInitialCmsSeoState(),
+    cart: createInitialCmsSeoState(),
+  });
+  const [cmsPagePublishedAt, setCmsPagePublishedAt] = useState<
+    Record<Exclude<CmsPageSlug, "home">, string | null>
+  >({
+    shop: null,
+    configurator: null,
+    cart: null,
+  });
+  const [cmsHeaderLinks, setCmsHeaderLinks] = useState<CmsLinkRowState[]>([]);
+  const [cmsFooterLinks, setCmsFooterLinks] = useState<CmsLinkRowState[]>([]);
+  const [cmsHomePublishedAt, setCmsHomePublishedAt] = useState<string | null>(null);
+  const [cmsMediaAssets, setCmsMediaAssets] = useState<CmsMediaAssetRow[]>([]);
+  const [cmsMediaUploadError, setCmsMediaUploadError] = useState("");
+  const [isUploadingCmsMedia, setIsUploadingCmsMedia] = useState(false);
   const previewIframeRef = useRef<HTMLIFrameElement | null>(null);
   const [categoryRows, setCategoryRows] = useState<CategoryRow[]>([]);
   const [loadingCategories, setLoadingCategories] = useState(false);
@@ -743,6 +1065,440 @@ export default function AdminPage() {
     setAppearanceSuccess("Restored default appearance from the currently saved website colors.");
   };
 
+  const fetchCmsWorkspace = useCallback(async () => {
+    if (!session) {
+      return;
+    }
+
+    try {
+      setLoadingCms(true);
+      setCmsError("");
+
+      const [
+        { data: pageData, error: pageError },
+        { data: navigationData, error: navigationError },
+        { data: mediaData, error: mediaError },
+      ] = await Promise.all([
+        (supabase as any)
+          .from("cms_pages")
+          .select("slug, title, draft_content, draft_seo, published_at")
+          .in("slug", cmsManagedPageSlugs),
+        (supabase as any)
+          .from("cms_navigation")
+          .select("location, draft_items")
+          .in("location", ["header", "footer"]),
+        (supabase as any)
+          .from("cms_media_assets")
+          .select("id, bucket, storage_path, mime_type, size_bytes, alt, alt_nl, created_at")
+          .order("created_at", { ascending: false })
+          .limit(50),
+      ]);
+
+      if (pageError) {
+        setCmsError(pageError.message);
+        return;
+      }
+
+      if (navigationError) {
+        setCmsError(navigationError.message);
+        return;
+      }
+
+      if (mediaError) {
+        setCmsError(mediaError.message);
+        return;
+      }
+
+      const pageRows =
+        ((pageData ?? []) as Array<{
+          slug: CmsPageSlug;
+          draft_content: unknown;
+          draft_seo: unknown;
+          published_at: string | null;
+        }>) ?? [];
+
+      const homePage = pageRows.find((row) => row.slug === cmsHomeSlug);
+
+      setCmsHomeDraft(parseCmsHomeDraft(homePage?.draft_content));
+      setCmsSeoDraft(parseCmsSeoDraft(homePage?.draft_seo));
+      setCmsHomePublishedAt(homePage?.published_at ?? null);
+
+      setCmsPageDrafts({
+        shop: parseCmsGenericDraft(pageRows.find((row) => row.slug === "shop")?.draft_content),
+        configurator: parseCmsGenericDraft(
+          pageRows.find((row) => row.slug === "configurator")?.draft_content,
+        ),
+        cart: parseCmsGenericDraft(pageRows.find((row) => row.slug === "cart")?.draft_content),
+      });
+
+      setCmsPageSeoDrafts({
+        shop: parseCmsSeoDraft(pageRows.find((row) => row.slug === "shop")?.draft_seo),
+        configurator: parseCmsSeoDraft(pageRows.find((row) => row.slug === "configurator")?.draft_seo),
+        cart: parseCmsSeoDraft(pageRows.find((row) => row.slug === "cart")?.draft_seo),
+      });
+
+      setCmsPagePublishedAt({
+        shop: pageRows.find((row) => row.slug === "shop")?.published_at ?? null,
+        configurator: pageRows.find((row) => row.slug === "configurator")?.published_at ?? null,
+        cart: pageRows.find((row) => row.slug === "cart")?.published_at ?? null,
+      });
+
+      const rows = (navigationData ?? []) as Array<{ location: "header" | "footer"; draft_items: unknown }>;
+      const header = rows.find((row) => row.location === "header");
+      const footer = rows.find((row) => row.location === "footer");
+
+      setCmsHeaderLinks(parseCmsLinkRows(header?.draft_items));
+      setCmsFooterLinks(parseCmsLinkRows(footer?.draft_items));
+      setCmsMediaAssets((mediaData ?? []) as CmsMediaAssetRow[]);
+    } catch {
+      setCmsError("Failed to load CMS workspace.");
+    } finally {
+      setLoadingCms(false);
+    }
+  }, [session, supabase]);
+
+  const handleSaveCmsDraft = useCallback(async () => {
+    try {
+      setSavingCmsDraft(true);
+      setCmsError("");
+      setCmsSuccess("");
+
+      const pagePayload = [
+        {
+          slug: "home",
+          title: "Home",
+          draft_content: cmsHomeDraft,
+          draft_seo: cmsSeoDraft,
+        },
+        {
+          slug: "shop",
+          title: "Shop",
+          draft_content: cmsPageDrafts.shop,
+          draft_seo: cmsPageSeoDrafts.shop,
+        },
+        {
+          slug: "configurator",
+          title: "Configurator",
+          draft_content: cmsPageDrafts.configurator,
+          draft_seo: cmsPageSeoDrafts.configurator,
+        },
+        {
+          slug: "cart",
+          title: "Cart",
+          draft_content: cmsPageDrafts.cart,
+          draft_seo: cmsPageSeoDrafts.cart,
+        },
+      ];
+
+      const { error: pageError } = await (supabase as any)
+        .from("cms_pages")
+        .upsert(pagePayload, { onConflict: "slug" });
+
+      if (pageError) {
+        setCmsError(pageError.message);
+        return;
+      }
+
+      const headerPayload = serializeCmsLinkRows(cmsHeaderLinks);
+      const footerPayload = serializeCmsLinkRows(cmsFooterLinks);
+
+      const { error: navigationError } = await (supabase as any).from("cms_navigation").upsert(
+        [
+          {
+            location: "header",
+            draft_items: headerPayload,
+          },
+          {
+            location: "footer",
+            draft_items: footerPayload,
+          },
+        ],
+        { onConflict: "location" },
+      );
+
+      if (navigationError) {
+        setCmsError(navigationError.message);
+        return;
+      }
+
+      setCmsSuccess("CMS draft saved.");
+    } catch {
+      setCmsError("Failed to save CMS draft.");
+    } finally {
+      setSavingCmsDraft(false);
+    }
+  }, [
+    cmsFooterLinks,
+    cmsHeaderLinks,
+    cmsHomeDraft,
+    cmsPageDrafts.cart,
+    cmsPageDrafts.configurator,
+    cmsPageDrafts.shop,
+    cmsPageSeoDrafts.cart,
+    cmsPageSeoDrafts.configurator,
+    cmsPageSeoDrafts.shop,
+    cmsSeoDraft,
+    supabase,
+  ]);
+
+  const handlePublishCms = useCallback(async () => {
+    try {
+      setPublishingCms(true);
+      setCmsError("");
+      setCmsSuccess("");
+
+      const publishedAt = new Date().toISOString();
+
+      const pagePayload = [
+        {
+          slug: "home",
+          title: "Home",
+          draft_content: cmsHomeDraft,
+          published_content: cmsHomeDraft,
+          draft_seo: cmsSeoDraft,
+          published_seo: cmsSeoDraft,
+          published_at: publishedAt,
+        },
+        {
+          slug: "shop",
+          title: "Shop",
+          draft_content: cmsPageDrafts.shop,
+          published_content: cmsPageDrafts.shop,
+          draft_seo: cmsPageSeoDrafts.shop,
+          published_seo: cmsPageSeoDrafts.shop,
+          published_at: publishedAt,
+        },
+        {
+          slug: "configurator",
+          title: "Configurator",
+          draft_content: cmsPageDrafts.configurator,
+          published_content: cmsPageDrafts.configurator,
+          draft_seo: cmsPageSeoDrafts.configurator,
+          published_seo: cmsPageSeoDrafts.configurator,
+          published_at: publishedAt,
+        },
+        {
+          slug: "cart",
+          title: "Cart",
+          draft_content: cmsPageDrafts.cart,
+          published_content: cmsPageDrafts.cart,
+          draft_seo: cmsPageSeoDrafts.cart,
+          published_seo: cmsPageSeoDrafts.cart,
+          published_at: publishedAt,
+        },
+      ];
+
+      const { error: pageError } = await (supabase as any)
+        .from("cms_pages")
+        .upsert(pagePayload, { onConflict: "slug" });
+
+      if (pageError) {
+        setCmsError(pageError.message);
+        return;
+      }
+
+      const { error: navigationError } = await (supabase as any).from("cms_navigation").upsert(
+        [
+          {
+            location: "header",
+            draft_items: serializeCmsLinkRows(cmsHeaderLinks),
+            published_items: serializeCmsLinkRows(cmsHeaderLinks),
+          },
+          {
+            location: "footer",
+            draft_items: serializeCmsLinkRows(cmsFooterLinks),
+            published_items: serializeCmsLinkRows(cmsFooterLinks),
+          },
+        ],
+        { onConflict: "location" },
+      );
+
+      if (navigationError) {
+        setCmsError(navigationError.message);
+        return;
+      }
+
+      setCmsHomePublishedAt(publishedAt);
+      setCmsPagePublishedAt({
+        shop: publishedAt,
+        configurator: publishedAt,
+        cart: publishedAt,
+      });
+      setCmsSuccess("CMS content published.");
+    } catch {
+      setCmsError("Failed to publish CMS content.");
+    } finally {
+      setPublishingCms(false);
+    }
+  }, [
+    cmsFooterLinks,
+    cmsHeaderLinks,
+    cmsHomeDraft,
+    cmsPageDrafts.cart,
+    cmsPageDrafts.configurator,
+    cmsPageDrafts.shop,
+    cmsPageSeoDrafts.cart,
+    cmsPageSeoDrafts.configurator,
+    cmsPageSeoDrafts.shop,
+    cmsSeoDraft,
+    supabase,
+  ]);
+
+  const updateCmsLink = useCallback(
+    (
+      location: "header" | "footer",
+      rowId: string,
+      field: keyof Omit<CmsLinkRowState, "id">,
+      value: string | boolean,
+    ) => {
+      const updater = (rows: CmsLinkRowState[]) =>
+        rows.map((row) => (row.id === rowId ? { ...row, [field]: value } : row));
+
+      if (location === "header") {
+        setCmsHeaderLinks(updater);
+      } else {
+        setCmsFooterLinks(updater);
+      }
+    },
+    [],
+  );
+
+  const addCmsLink = useCallback((location: "header" | "footer") => {
+    if (location === "header") {
+      setCmsHeaderLinks((previous) => [...previous, createCmsLinkRow()]);
+      return;
+    }
+
+    setCmsFooterLinks((previous) => [...previous, createCmsLinkRow()]);
+  }, []);
+
+  const removeCmsLink = useCallback((location: "header" | "footer", rowId: string) => {
+    if (location === "header") {
+      setCmsHeaderLinks((previous) => previous.filter((row) => row.id !== rowId));
+      return;
+    }
+
+    setCmsFooterLinks((previous) => previous.filter((row) => row.id !== rowId));
+  }, []);
+
+  const updateCmsPageField = useCallback(
+    (
+      slug: Exclude<CmsPageSlug, "home">,
+      field: keyof CmsGenericDraftState,
+      value: string,
+    ) => {
+      setCmsPageDrafts((previous) => ({
+        ...previous,
+        [slug]: {
+          ...previous[slug],
+          [field]: value,
+        },
+      }));
+    },
+    [],
+  );
+
+  const updateCmsPageSeoField = useCallback(
+    (slug: Exclude<CmsPageSlug, "home">, field: keyof CmsSeoState, value: string) => {
+      setCmsPageSeoDrafts((previous) => ({
+        ...previous,
+        [slug]: {
+          ...previous[slug],
+          [field]: value,
+        },
+      }));
+    },
+    [],
+  );
+
+  const handleCmsMediaFiles = useCallback(
+    async (files: FileList | File[]) => {
+      if (!session) {
+        return;
+      }
+
+      const list = Array.from(files).filter((file) => file.type.startsWith("image/"));
+
+      if (list.length === 0) {
+        setCmsMediaUploadError("No valid image files selected for CMS media.");
+        return;
+      }
+
+      setCmsMediaUploadError("");
+      setIsUploadingCmsMedia(true);
+
+      try {
+        const uploadErrors: string[] = [];
+
+        for (const file of list) {
+          const extension = file.name.includes(".") ? file.name.split(".").pop() : "jpg";
+          const baseName = sanitizeFileName(file.name.replace(/\.[^.]+$/, ""));
+          const uniquePath = `cms/${Date.now()}-${Math.random().toString(16).slice(2)}-${baseName || "asset"}.${extension}`;
+
+          const { error: uploadError } = await supabase.storage
+            .from(cmsMediaBucket)
+            .upload(uniquePath, file, { upsert: false });
+
+          if (uploadError) {
+            uploadErrors.push(`${file.name}: ${uploadError.message}`);
+            continue;
+          }
+
+          const { error: insertError } = await (supabase as any).from("cms_media_assets").insert({
+            bucket: cmsMediaBucket,
+            storage_path: uniquePath,
+            mime_type: file.type || null,
+            size_bytes: file.size,
+            created_by: session.user.id,
+          });
+
+          if (insertError) {
+            uploadErrors.push(`${file.name}: ${insertError.message}`);
+          }
+        }
+
+        if (uploadErrors.length > 0) {
+          setCmsMediaUploadError(uploadErrors.join(" | "));
+        }
+
+        await fetchCmsWorkspace();
+      } finally {
+        setIsUploadingCmsMedia(false);
+      }
+    },
+    [fetchCmsWorkspace, session, supabase],
+  );
+
+  const handleCmsMediaInputChange = useCallback(
+    async (event: React.ChangeEvent<HTMLInputElement>) => {
+      if (event.target.files) {
+        await handleCmsMediaFiles(event.target.files);
+      }
+
+      event.target.value = "";
+    },
+    [handleCmsMediaFiles],
+  );
+
+  const handleUpdateCmsMediaAlt = useCallback(
+    async (assetId: string, field: "alt" | "alt_nl", value: string) => {
+      const { error: updateError } = await (supabase as any)
+        .from("cms_media_assets")
+        .update({ [field]: value || null })
+        .eq("id", assetId);
+
+      if (updateError) {
+        setCmsMediaUploadError(updateError.message);
+        return;
+      }
+
+      setCmsMediaAssets((previous) =>
+        previous.map((asset) => (asset.id === assetId ? { ...asset, [field]: value } : asset)),
+      );
+    },
+    [supabase],
+  );
+
   const fetchProducts = useCallback(async () => {
     if (!session) {
       return;
@@ -777,8 +1533,9 @@ export default function AdminPage() {
       void fetchCategories();
       void fetchProducts();
       void fetchAppearanceSettings();
+      void fetchCmsWorkspace();
     }
-  }, [session, fetchAppearanceSettings, fetchCategories, fetchProducts]);
+  }, [session, fetchAppearanceSettings, fetchCategories, fetchCmsWorkspace, fetchProducts]);
 
   const handleSaveAppearance = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -1597,6 +2354,454 @@ export default function AdminPage() {
                 </Button>
                 <Button type="button" variant="secondary" onClick={handleOpenPreviewInNewTab}>
                   Open Preview Tab
+                </Button>
+              </div>
+            </div>
+
+            <div className="mt-6 space-y-5 rounded-2xl border border-black/10 bg-[var(--color-neutral-100)]/55 p-5">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <h3 className="text-lg font-semibold text-[var(--color-ink)]">CMS Workspace</h3>
+                  <p className="text-sm text-[var(--color-muted)]">
+                    Edit homepage copy, SEO, and navigation links in draft mode, then publish in one click.
+                  </p>
+                </div>
+                <div className="text-xs text-[var(--color-muted)]">
+                  {cmsHomePublishedAt
+                    ? `Last published: ${new Date(cmsHomePublishedAt).toLocaleString()}`
+                    : "Not published yet"}
+                </div>
+              </div>
+
+              {loadingCms ? (
+                <p className="rounded-lg bg-white px-4 py-2 text-sm text-[var(--color-muted)]">
+                  Loading CMS workspace...
+                </p>
+              ) : null}
+
+              {cmsError ? (
+                <p className="rounded-lg bg-red-100 px-4 py-2 text-sm text-red-700">{cmsError}</p>
+              ) : null}
+
+              {cmsSuccess ? (
+                <p className="rounded-lg bg-emerald-100 px-4 py-2 text-sm text-emerald-700">{cmsSuccess}</p>
+              ) : null}
+
+              <details open className="rounded-2xl border border-black/10 bg-white p-4">
+                <summary className="cursor-pointer text-sm font-semibold text-[var(--color-ink)]">
+                  Home Content (EN/NL)
+                </summary>
+                <div className="mt-4 grid gap-3 md:grid-cols-2">
+                  {([
+                    { label: "Hero Eyebrow", keyEn: "heroEyebrow", keyNl: "heroEyebrowNl" },
+                    { label: "Hero Title", keyEn: "heroTitle", keyNl: "heroTitleNl" },
+                    {
+                      label: "Hero Description",
+                      keyEn: "heroDescription",
+                      keyNl: "heroDescriptionNl",
+                    },
+                    { label: "Hero Primary CTA", keyEn: "heroPrimaryCta", keyNl: "heroPrimaryCtaNl" },
+                    {
+                      label: "Hero Secondary CTA",
+                      keyEn: "heroSecondaryCta",
+                      keyNl: "heroSecondaryCtaNl",
+                    },
+                    { label: "Featured Eyebrow", keyEn: "featuredEyebrow", keyNl: "featuredEyebrowNl" },
+                    { label: "Featured Title", keyEn: "featuredTitle", keyNl: "featuredTitleNl" },
+                    {
+                      label: "Featured Description",
+                      keyEn: "featuredDescription",
+                      keyNl: "featuredDescriptionNl",
+                    },
+                    {
+                      label: "Categories Eyebrow",
+                      keyEn: "categoriesEyebrow",
+                      keyNl: "categoriesEyebrowNl",
+                    },
+                    { label: "Categories Title", keyEn: "categoriesTitle", keyNl: "categoriesTitleNl" },
+                    {
+                      label: "Categories Description",
+                      keyEn: "categoriesDescription",
+                      keyNl: "categoriesDescriptionNl",
+                    },
+                    { label: "Story Eyebrow", keyEn: "storyEyebrow", keyNl: "storyEyebrowNl" },
+                    { label: "Story Title", keyEn: "storyTitle", keyNl: "storyTitleNl" },
+                    {
+                      label: "Story Description",
+                      keyEn: "storyDescription",
+                      keyNl: "storyDescriptionNl",
+                    },
+                    { label: "Story Point One", keyEn: "storyPointOne", keyNl: "storyPointOneNl" },
+                    { label: "Story Point Two", keyEn: "storyPointTwo", keyNl: "storyPointTwoNl" },
+                    {
+                      label: "Story Point Three",
+                      keyEn: "storyPointThree",
+                      keyNl: "storyPointThreeNl",
+                    },
+                  ] as const).map((field) => (
+                    <div key={field.keyEn} className="space-y-2">
+                      <label className="text-xs font-medium uppercase tracking-wide text-[var(--color-muted)]">
+                        {field.label}
+                      </label>
+                      <input
+                        className={fieldClassName}
+                        value={cmsHomeDraft[field.keyEn]}
+                        onChange={(event) =>
+                          setCmsHomeDraft((previous) => ({
+                            ...previous,
+                            [field.keyEn]: event.target.value,
+                          }))
+                        }
+                        placeholder="English"
+                      />
+                      <input
+                        className={fieldClassName}
+                        value={cmsHomeDraft[field.keyNl]}
+                        onChange={(event) =>
+                          setCmsHomeDraft((previous) => ({
+                            ...previous,
+                            [field.keyNl]: event.target.value,
+                          }))
+                        }
+                        placeholder="Nederlands"
+                      />
+                    </div>
+                  ))}
+
+                  <div className="md:col-span-2">
+                    <label className="text-xs font-medium uppercase tracking-wide text-[var(--color-muted)]">
+                      Hero Image URL
+                    </label>
+                    <input
+                      className={fieldClassName}
+                      value={cmsHomeDraft.heroImage}
+                      onChange={(event) =>
+                        setCmsHomeDraft((previous) => ({ ...previous, heroImage: event.target.value }))
+                      }
+                      placeholder="https://..."
+                    />
+                  </div>
+                </div>
+              </details>
+
+              <details className="rounded-2xl border border-black/10 bg-white p-4">
+                <summary className="cursor-pointer text-sm font-semibold text-[var(--color-ink)]">
+                  Home SEO (Draft)
+                </summary>
+                <div className="mt-4 grid gap-3 md:grid-cols-2">
+                  <div>
+                    <label className="text-xs font-medium uppercase tracking-wide text-[var(--color-muted)]">
+                      Meta Title
+                    </label>
+                    <input
+                      className={fieldClassName}
+                      value={cmsSeoDraft.metaTitle}
+                      onChange={(event) =>
+                        setCmsSeoDraft((previous) => ({ ...previous, metaTitle: event.target.value }))
+                      }
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs font-medium uppercase tracking-wide text-[var(--color-muted)]">
+                      OG Image URL
+                    </label>
+                    <input
+                      className={fieldClassName}
+                      value={cmsSeoDraft.ogImage}
+                      onChange={(event) =>
+                        setCmsSeoDraft((previous) => ({ ...previous, ogImage: event.target.value }))
+                      }
+                    />
+                  </div>
+                  <div className="md:col-span-2">
+                    <label className="text-xs font-medium uppercase tracking-wide text-[var(--color-muted)]">
+                      Meta Description
+                    </label>
+                    <textarea
+                      className={fieldClassName}
+                      rows={3}
+                      value={cmsSeoDraft.metaDescription}
+                      onChange={(event) =>
+                        setCmsSeoDraft((previous) => ({
+                          ...previous,
+                          metaDescription: event.target.value,
+                        }))
+                      }
+                    />
+                  </div>
+                </div>
+              </details>
+
+              {cmsAdditionalPageSlugs.map((slug) => (
+                <details key={slug} className="rounded-2xl border border-black/10 bg-white p-4">
+                  <summary className="cursor-pointer text-sm font-semibold capitalize text-[var(--color-ink)]">
+                    {slug} Page (Draft)
+                  </summary>
+
+                  <div className="mt-4 text-xs text-[var(--color-muted)]">
+                    {cmsPagePublishedAt[slug]
+                      ? `Last published: ${new Date(cmsPagePublishedAt[slug] as string).toLocaleString()}`
+                      : "Not published yet"}
+                  </div>
+
+                  <div className="mt-4 grid gap-3 md:grid-cols-2">
+                    {([
+                      { label: "Eyebrow", keyEn: "eyebrow", keyNl: "eyebrowNl" },
+                      { label: "Title", keyEn: "title", keyNl: "titleNl" },
+                      { label: "Description", keyEn: "description", keyNl: "descriptionNl" },
+                      { label: "Primary CTA", keyEn: "primaryCta", keyNl: "primaryCtaNl" },
+                      { label: "Secondary CTA", keyEn: "secondaryCta", keyNl: "secondaryCtaNl" },
+                    ] as const).map((field) => (
+                      <div key={field.keyEn} className="space-y-2">
+                        <label className="text-xs font-medium uppercase tracking-wide text-[var(--color-muted)]">
+                          {field.label}
+                        </label>
+                        <input
+                          className={fieldClassName}
+                          value={cmsPageDrafts[slug][field.keyEn]}
+                          onChange={(event) =>
+                            updateCmsPageField(slug, field.keyEn, event.target.value)
+                          }
+                          placeholder="English"
+                        />
+                        <input
+                          className={fieldClassName}
+                          value={cmsPageDrafts[slug][field.keyNl]}
+                          onChange={(event) =>
+                            updateCmsPageField(slug, field.keyNl, event.target.value)
+                          }
+                          placeholder="Nederlands"
+                        />
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="mt-4 grid gap-3 md:grid-cols-2">
+                    <div>
+                      <label className="text-xs font-medium uppercase tracking-wide text-[var(--color-muted)]">
+                        Meta Title
+                      </label>
+                      <input
+                        className={fieldClassName}
+                        value={cmsPageSeoDrafts[slug].metaTitle}
+                        onChange={(event) =>
+                          updateCmsPageSeoField(slug, "metaTitle", event.target.value)
+                        }
+                      />
+                    </div>
+                    <div>
+                      <label className="text-xs font-medium uppercase tracking-wide text-[var(--color-muted)]">
+                        OG Image URL
+                      </label>
+                      <input
+                        className={fieldClassName}
+                        value={cmsPageSeoDrafts[slug].ogImage}
+                        onChange={(event) =>
+                          updateCmsPageSeoField(slug, "ogImage", event.target.value)
+                        }
+                      />
+                    </div>
+                    <div className="md:col-span-2">
+                      <label className="text-xs font-medium uppercase tracking-wide text-[var(--color-muted)]">
+                        Meta Description
+                      </label>
+                      <textarea
+                        className={fieldClassName}
+                        rows={3}
+                        value={cmsPageSeoDrafts[slug].metaDescription}
+                        onChange={(event) =>
+                          updateCmsPageSeoField(slug, "metaDescription", event.target.value)
+                        }
+                      />
+                    </div>
+                  </div>
+                </details>
+              ))}
+
+              {([
+                { title: "Header Navigation", location: "header", rows: cmsHeaderLinks },
+                { title: "Footer Navigation", location: "footer", rows: cmsFooterLinks },
+              ] as const).map((section) => (
+                <details key={section.location} className="rounded-2xl border border-black/10 bg-white p-4">
+                  <summary className="cursor-pointer text-sm font-semibold text-[var(--color-ink)]">
+                    {section.title}
+                  </summary>
+
+                  <div className="mt-4 space-y-3">
+                    {section.rows.map((row) => (
+                      <div
+                        key={row.id}
+                        className="grid gap-2 rounded-xl border border-black/10 p-3 md:grid-cols-[1fr_1fr_1.2fr_auto_auto]"
+                      >
+                        <input
+                          className={fieldClassName}
+                          value={row.label}
+                          placeholder="Label EN"
+                          onChange={(event) =>
+                            updateCmsLink(section.location, row.id, "label", event.target.value)
+                          }
+                        />
+                        <input
+                          className={fieldClassName}
+                          value={row.labelNl}
+                          placeholder="Label NL"
+                          onChange={(event) =>
+                            updateCmsLink(section.location, row.id, "labelNl", event.target.value)
+                          }
+                        />
+                        <input
+                          className={fieldClassName}
+                          value={row.href}
+                          placeholder="/shop"
+                          onChange={(event) =>
+                            updateCmsLink(section.location, row.id, "href", event.target.value)
+                          }
+                        />
+                        <label className="mt-3 flex items-center gap-2 text-xs text-[var(--color-muted)]">
+                          <input
+                            type="checkbox"
+                            checked={row.external}
+                            onChange={(event) =>
+                              updateCmsLink(section.location, row.id, "external", event.target.checked)
+                            }
+                          />
+                          External
+                        </label>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          className="mt-2"
+                          onClick={() => removeCmsLink(section.location, row.id)}
+                        >
+                          Remove
+                        </Button>
+                      </div>
+                    ))}
+
+                    <Button type="button" variant="secondary" onClick={() => addCmsLink(section.location)}>
+                      Add Link
+                    </Button>
+                  </div>
+                </details>
+              ))}
+
+              <details className="rounded-2xl border border-black/10 bg-white p-4">
+                <summary className="cursor-pointer text-sm font-semibold text-[var(--color-ink)]">
+                  Media Library
+                </summary>
+
+                <div className="mt-4 space-y-3">
+                  <div className="rounded-xl border border-dashed border-black/15 bg-[var(--color-neutral-100)] px-4 py-4">
+                    <label className="inline-flex cursor-pointer items-center rounded-xl border border-black/10 bg-white px-4 py-2 text-sm font-medium text-[var(--color-ink)]">
+                      Upload images
+                      <input
+                        type="file"
+                        multiple
+                        accept="image/*"
+                        className="hidden"
+                        onChange={handleCmsMediaInputChange}
+                      />
+                    </label>
+                    <p className="mt-2 text-xs text-[var(--color-muted)]">
+                      Uploaded files go to bucket "{cmsMediaBucket}" and are registered in cms_media_assets.
+                    </p>
+                    {isUploadingCmsMedia ? (
+                      <p className="mt-2 text-xs text-[var(--color-muted)]">Uploading CMS media...</p>
+                    ) : null}
+                    {cmsMediaUploadError ? (
+                      <p className="mt-2 rounded-lg bg-red-100 px-3 py-2 text-xs text-red-700">
+                        {cmsMediaUploadError}
+                      </p>
+                    ) : null}
+                  </div>
+
+                  <div className="space-y-3">
+                    {cmsMediaAssets.length === 0 ? (
+                      <p className="text-xs text-[var(--color-muted)]">No CMS media assets uploaded yet.</p>
+                    ) : (
+                      cmsMediaAssets.map((asset) => {
+                        const publicUrl = supabase.storage
+                          .from(asset.bucket)
+                          .getPublicUrl(asset.storage_path).data.publicUrl;
+
+                        return (
+                          <div
+                            key={asset.id}
+                            className="rounded-xl border border-black/10 p-3"
+                          >
+                            <div className="flex flex-wrap items-center justify-between gap-2">
+                              <a
+                                href={publicUrl}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="text-xs font-medium text-[var(--color-wood)] underline"
+                              >
+                                {asset.storage_path}
+                              </a>
+                              <button
+                                type="button"
+                                className="text-xs font-medium text-[var(--color-muted)]"
+                                onClick={() => void navigator.clipboard.writeText(publicUrl)}
+                              >
+                                Copy URL
+                              </button>
+                            </div>
+
+                            <div className="mt-3 grid gap-2 md:grid-cols-2">
+                              <input
+                                className={fieldClassName}
+                                value={asset.alt ?? ""}
+                                placeholder="Alt text EN"
+                                onChange={(event) =>
+                                  setCmsMediaAssets((previous) =>
+                                    previous.map((row) =>
+                                      row.id === asset.id ? { ...row, alt: event.target.value } : row,
+                                    ),
+                                  )
+                                }
+                                onBlur={(event) =>
+                                  void handleUpdateCmsMediaAlt(asset.id, "alt", event.target.value)
+                                }
+                              />
+                              <input
+                                className={fieldClassName}
+                                value={asset.alt_nl ?? ""}
+                                placeholder="Alt text NL"
+                                onChange={(event) =>
+                                  setCmsMediaAssets((previous) =>
+                                    previous.map((row) =>
+                                      row.id === asset.id ? { ...row, alt_nl: event.target.value } : row,
+                                    ),
+                                  )
+                                }
+                                onBlur={(event) =>
+                                  void handleUpdateCmsMediaAlt(asset.id, "alt_nl", event.target.value)
+                                }
+                              />
+                            </div>
+                          </div>
+                        );
+                      })
+                    )}
+                  </div>
+                </div>
+              </details>
+
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  type="button"
+                  onClick={() => void handleSaveCmsDraft()}
+                  disabled={loadingCms || savingCmsDraft || publishingCms}
+                >
+                  {savingCmsDraft ? "Saving Draft..." : "Save CMS Draft"}
+                </Button>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={() => void handlePublishCms()}
+                  disabled={loadingCms || savingCmsDraft || publishingCms}
+                >
+                  {publishingCms ? "Publishing..." : "Publish CMS"}
                 </Button>
               </div>
             </div>

@@ -92,6 +92,44 @@ create table if not exists public.site_settings (
   updated_at timestamptz not null default now()
 );
 
+create table if not exists public.cms_pages (
+  id uuid primary key default gen_random_uuid(),
+  slug text not null unique,
+  title text not null,
+  draft_content jsonb not null default '{}'::jsonb,
+  published_content jsonb not null default '{}'::jsonb,
+  draft_seo jsonb not null default '{}'::jsonb,
+  published_seo jsonb not null default '{}'::jsonb,
+  published_at timestamptz,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table if not exists public.cms_navigation (
+  id uuid primary key default gen_random_uuid(),
+  location text not null unique check (location in ('header', 'footer')),
+  draft_items jsonb not null default '[]'::jsonb,
+  published_items jsonb not null default '[]'::jsonb,
+  published_at timestamptz,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table if not exists public.cms_media_assets (
+  id uuid primary key default gen_random_uuid(),
+  bucket text not null default 'cms-media',
+  storage_path text not null unique,
+  mime_type text,
+  size_bytes bigint,
+  width int,
+  height int,
+  alt text,
+  alt_nl text,
+  created_by uuid references auth.users(id) on delete set null,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
 alter table public.site_settings
   add column if not exists container_width text not null default 'standard';
 
@@ -147,10 +185,28 @@ create trigger trg_site_settings_updated_at
 before update on public.site_settings
 for each row execute function public.set_updated_at();
 
+drop trigger if exists trg_cms_pages_updated_at on public.cms_pages;
+create trigger trg_cms_pages_updated_at
+before update on public.cms_pages
+for each row execute function public.set_updated_at();
+
+drop trigger if exists trg_cms_navigation_updated_at on public.cms_navigation;
+create trigger trg_cms_navigation_updated_at
+before update on public.cms_navigation
+for each row execute function public.set_updated_at();
+
+drop trigger if exists trg_cms_media_assets_updated_at on public.cms_media_assets;
+create trigger trg_cms_media_assets_updated_at
+before update on public.cms_media_assets
+for each row execute function public.set_updated_at();
+
 alter table public.products enable row level security;
 alter table public.admin_users enable row level security;
 alter table public.categories enable row level security;
 alter table public.site_settings enable row level security;
+alter table public.cms_pages enable row level security;
+alter table public.cms_navigation enable row level security;
+alter table public.cms_media_assets enable row level security;
 
 drop policy if exists "Public can read products" on public.products;
 create policy "Public can read products"
@@ -305,6 +361,187 @@ with check (
   )
 );
 
+drop policy if exists "Public can read cms pages" on public.cms_pages;
+create policy "Public can read cms pages"
+on public.cms_pages
+for select
+to anon, authenticated
+using (true);
+
+drop policy if exists "Owners can insert cms pages" on public.cms_pages;
+create policy "Owners can insert cms pages"
+on public.cms_pages
+for insert
+to authenticated
+with check (
+  exists (
+    select 1
+    from public.admin_users
+    where admin_users.user_id = auth.uid()
+  )
+);
+
+drop policy if exists "Owners can update cms pages" on public.cms_pages;
+create policy "Owners can update cms pages"
+on public.cms_pages
+for update
+to authenticated
+using (
+  exists (
+    select 1
+    from public.admin_users
+    where admin_users.user_id = auth.uid()
+  )
+)
+with check (
+  exists (
+    select 1
+    from public.admin_users
+    where admin_users.user_id = auth.uid()
+  )
+);
+
+drop policy if exists "Public can read cms navigation" on public.cms_navigation;
+create policy "Public can read cms navigation"
+on public.cms_navigation
+for select
+to anon, authenticated
+using (true);
+
+drop policy if exists "Owners can insert cms navigation" on public.cms_navigation;
+create policy "Owners can insert cms navigation"
+on public.cms_navigation
+for insert
+to authenticated
+with check (
+  exists (
+    select 1
+    from public.admin_users
+    where admin_users.user_id = auth.uid()
+  )
+);
+
+drop policy if exists "Owners can update cms navigation" on public.cms_navigation;
+create policy "Owners can update cms navigation"
+on public.cms_navigation
+for update
+to authenticated
+using (
+  exists (
+    select 1
+    from public.admin_users
+    where admin_users.user_id = auth.uid()
+  )
+)
+with check (
+  exists (
+    select 1
+    from public.admin_users
+    where admin_users.user_id = auth.uid()
+  )
+);
+
+drop policy if exists "Public can read cms media assets" on public.cms_media_assets;
+create policy "Public can read cms media assets"
+on public.cms_media_assets
+for select
+to anon, authenticated
+using (true);
+
+drop policy if exists "Owners can insert cms media assets" on public.cms_media_assets;
+create policy "Owners can insert cms media assets"
+on public.cms_media_assets
+for insert
+to authenticated
+with check (
+  exists (
+    select 1
+    from public.admin_users
+    where admin_users.user_id = auth.uid()
+  )
+);
+
+drop policy if exists "Owners can update cms media assets" on public.cms_media_assets;
+create policy "Owners can update cms media assets"
+on public.cms_media_assets
+for update
+to authenticated
+using (
+  exists (
+    select 1
+    from public.admin_users
+    where admin_users.user_id = auth.uid()
+  )
+)
+with check (
+  exists (
+    select 1
+    from public.admin_users
+    where admin_users.user_id = auth.uid()
+  )
+);
+
+insert into storage.buckets (id, name, public)
+values ('cms-media', 'cms-media', true)
+on conflict (id) do nothing;
+
+drop policy if exists "Public can read cms media storage" on storage.objects;
+create policy "Public can read cms media storage"
+on storage.objects
+for select
+to anon, authenticated
+using (bucket_id = 'cms-media');
+
+drop policy if exists "Owners can insert cms media storage" on storage.objects;
+create policy "Owners can insert cms media storage"
+on storage.objects
+for insert
+to authenticated
+with check (
+  bucket_id = 'cms-media'
+  and exists (
+    select 1
+    from public.admin_users
+    where admin_users.user_id = auth.uid()
+  )
+);
+
+drop policy if exists "Owners can update cms media storage" on storage.objects;
+create policy "Owners can update cms media storage"
+on storage.objects
+for update
+to authenticated
+using (
+  bucket_id = 'cms-media'
+  and exists (
+    select 1
+    from public.admin_users
+    where admin_users.user_id = auth.uid()
+  )
+)
+with check (
+  bucket_id = 'cms-media'
+  and exists (
+    select 1
+    from public.admin_users
+    where admin_users.user_id = auth.uid()
+  )
+);
+
+drop policy if exists "Owners can delete cms media storage" on storage.objects;
+create policy "Owners can delete cms media storage"
+on storage.objects
+for delete
+to authenticated
+using (
+  bucket_id = 'cms-media'
+  and exists (
+    select 1
+    from public.admin_users
+    where admin_users.user_id = auth.uid()
+  )
+);
+
 grant usage on schema public to anon, authenticated;
 grant select on public.products to anon, authenticated;
 grant insert, update, delete on public.products to authenticated;
@@ -313,6 +550,12 @@ grant select on public.categories to anon, authenticated;
 grant insert, update, delete on public.categories to authenticated;
 grant select on public.site_settings to anon, authenticated;
 grant insert, update on public.site_settings to authenticated;
+grant select on public.cms_pages to anon, authenticated;
+grant insert, update on public.cms_pages to authenticated;
+grant select on public.cms_navigation to anon, authenticated;
+grant insert, update on public.cms_navigation to authenticated;
+grant select on public.cms_media_assets to anon, authenticated;
+grant insert, update on public.cms_media_assets to authenticated;
 
 insert into public.categories (slug, name, description, hero_image)
 values
@@ -325,6 +568,22 @@ on conflict (slug) do nothing;
 insert into public.site_settings (id)
 values (1)
 on conflict (id) do nothing;
+
+insert into public.cms_pages (slug, title)
+values
+  ('home', 'Homepage'),
+  ('shop', 'Shop Overview'),
+  ('category', 'Category Page'),
+  ('product', 'Product Detail Page'),
+  ('cart', 'Cart Page'),
+  ('configurator', 'Configurator Page')
+on conflict (slug) do nothing;
+
+insert into public.cms_navigation (location)
+values
+  ('header'),
+  ('footer')
+on conflict (location) do nothing;
 
 -- After creating your owner account in Supabase Auth,
 -- add that user id here (replace the UUID):

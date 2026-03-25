@@ -1,6 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
+import type { Metadata } from "next";
 import { cookies } from "next/headers";
+import { getPublishedCmsHomeContentFromStore, getPublishedSeoBySlug } from "@/lib/cms-repository";
 import { ProductCard } from "@/components/shop/product-card";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { Button } from "@/components/ui/button";
@@ -11,10 +13,28 @@ import { getTranslations, languageCookieName, normalizeLanguage } from "@/lib/i1
 
 export const dynamic = "force-dynamic";
 
+export async function generateMetadata(): Promise<Metadata> {
+  const cookieStore = await cookies();
+  const language = normalizeLanguage(cookieStore.get(languageCookieName)?.value);
+  const t = getTranslations(language);
+  const seo = await getPublishedSeoBySlug("home", language);
+
+  return {
+    title: seo?.metaTitle || t.homeHeroTitle,
+    description: seo?.metaDescription || t.homeHeroDescription,
+    openGraph: {
+      title: seo?.metaTitle || t.homeHeroTitle,
+      description: seo?.metaDescription || t.homeHeroDescription,
+      ...(seo?.ogImage ? { images: [seo.ogImage] } : {}),
+    },
+  };
+}
+
 export default async function Home() {
   const cookieStore = await cookies();
   const language = normalizeLanguage(cookieStore.get(languageCookieName)?.value);
   const t = getTranslations(language);
+  const cmsHome = await getPublishedCmsHomeContentFromStore(language);
   const featuredProducts = (await getFeaturedProducts()).map((product) =>
     localizeProduct(product, language),
   );
@@ -30,20 +50,20 @@ export default async function Home() {
       >
         <div data-home-hero-copy className="animate-rise max-w-xl space-y-6">
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--color-wood)]">
-            {t.homeHeroEyebrow}
+            {cmsHome?.heroEyebrow || t.homeHeroEyebrow}
           </p>
           <h1 className="text-balance text-5xl font-semibold leading-tight tracking-tight text-[var(--color-ink)] md:text-6xl">
-            {t.homeHeroTitle}
+            {cmsHome?.heroTitle || t.homeHeroTitle}
           </h1>
           <p className="text-pretty text-base leading-8 text-[var(--color-muted)] md:text-lg">
-            {t.homeHeroDescription}
+            {cmsHome?.heroDescription || t.homeHeroDescription}
           </p>
           <div data-home-hero-actions className="flex flex-wrap gap-3">
             <Link href="/shop">
-              <Button>{t.homeHeroPrimaryCta}</Button>
+              <Button>{cmsHome?.heroPrimaryCta || t.homeHeroPrimaryCta}</Button>
             </Link>
             <Link href="/configurator">
-              <Button variant="secondary">{t.homeHeroSecondaryCta}</Button>
+              <Button variant="secondary">{cmsHome?.heroSecondaryCta || t.homeHeroSecondaryCta}</Button>
             </Link>
           </div>
         </div>
@@ -54,7 +74,10 @@ export default async function Home() {
         >
           <div className="relative aspect-[4/3] overflow-hidden rounded-[1.8rem]">
             <Image
-              src="https://images.unsplash.com/photo-1616137466211-f939a420be84?auto=format&fit=crop&w=1600&q=80"
+              src={
+                cmsHome?.heroImage ||
+                "https://images.unsplash.com/photo-1616137466211-f939a420be84?auto=format&fit=crop&w=1600&q=80"
+              }
               alt="Artisanal table in a modern interior"
               fill
               className="object-cover"
@@ -67,9 +90,9 @@ export default async function Home() {
 
       <section className="mx-auto mt-12 w-full max-w-7xl px-6 md:px-10">
         <SectionHeading
-          eyebrow={t.homeFeaturedEyebrow}
-          title={t.homeFeaturedTitle}
-          description={t.homeFeaturedDescription}
+          eyebrow={cmsHome?.featuredEyebrow || t.homeFeaturedEyebrow}
+          title={cmsHome?.featuredTitle || t.homeFeaturedTitle}
+          description={cmsHome?.featuredDescription || t.homeFeaturedDescription}
         />
 
         <div className="mt-8 grid gap-6 md:grid-cols-3">
@@ -81,9 +104,9 @@ export default async function Home() {
 
       <section className="mx-auto mt-20 w-full max-w-7xl px-6 md:px-10">
         <SectionHeading
-          eyebrow={t.homeCategoriesEyebrow}
-          title={t.homeCategoriesTitle}
-          description={t.homeCategoriesDescription}
+          eyebrow={cmsHome?.categoriesEyebrow || t.homeCategoriesEyebrow}
+          title={cmsHome?.categoriesTitle || t.homeCategoriesTitle}
+          description={cmsHome?.categoriesDescription || t.homeCategoriesDescription}
         />
 
         <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
@@ -118,14 +141,14 @@ export default async function Home() {
       <section className="mx-auto mt-20 w-full max-w-7xl px-6 md:px-10">
         <div className="rounded-[2rem] border border-black/5 bg-white p-8 md:p-12">
           <SectionHeading
-            eyebrow={t.homeStoryEyebrow}
-            title={t.homeStoryTitle}
-            description={t.homeStoryDescription}
+            eyebrow={cmsHome?.storyEyebrow || t.homeStoryEyebrow}
+            title={cmsHome?.storyTitle || t.homeStoryTitle}
+            description={cmsHome?.storyDescription || t.homeStoryDescription}
           />
           <div className="mt-8 grid gap-4 text-sm text-[var(--color-muted)] md:grid-cols-3">
-            <p>{t.homeStoryPointOne}</p>
-            <p>{t.homeStoryPointTwo}</p>
-            <p>{t.homeStoryPointThree}</p>
+            <p>{cmsHome?.storyPointOne || t.homeStoryPointOne}</p>
+            <p>{cmsHome?.storyPointTwo || t.homeStoryPointTwo}</p>
+            <p>{cmsHome?.storyPointThree || t.homeStoryPointThree}</p>
           </div>
         </div>
       </section>

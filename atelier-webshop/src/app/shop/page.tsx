@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { cookies } from "next/headers";
+import type { Metadata } from "next";
+import { getPublishedCmsPageContentFromStore, getPublishedSeoBySlug } from "@/lib/cms-repository";
 import { ProductCard } from "@/components/shop/product-card";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { getAllCategoriesFromStore } from "@/lib/categories-repository";
@@ -9,10 +11,28 @@ import { getTranslations, languageCookieName, normalizeLanguage } from "@/lib/i1
 
 export const dynamic = "force-dynamic";
 
+export async function generateMetadata(): Promise<Metadata> {
+  const cookieStore = await cookies();
+  const language = normalizeLanguage(cookieStore.get(languageCookieName)?.value);
+  const t = getTranslations(language);
+  const seo = await getPublishedSeoBySlug("shop", language);
+
+  return {
+    title: seo?.metaTitle || t.shopTitle,
+    description: seo?.metaDescription || t.shopDescription,
+    openGraph: {
+      title: seo?.metaTitle || t.shopTitle,
+      description: seo?.metaDescription || t.shopDescription,
+      ...(seo?.ogImage ? { images: [seo.ogImage] } : {}),
+    },
+  };
+}
+
 export default async function ShopPage() {
   const cookieStore = await cookies();
   const language = normalizeLanguage(cookieStore.get(languageCookieName)?.value);
   const t = getTranslations(language);
+  const cmsPage = await getPublishedCmsPageContentFromStore("shop", language);
   const products = (await getAllProducts()).map((product) => localizeProduct(product, language));
   const categories = (await getAllCategoriesFromStore()).map((category) =>
     localizeCategory(category, language),
@@ -21,9 +41,9 @@ export default async function ShopPage() {
   return (
     <section className="mx-auto w-full max-w-7xl px-6 pb-20 pt-12 md:px-10">
       <SectionHeading
-        eyebrow={t.shopEyebrow}
-        title={t.shopTitle}
-        description={t.shopDescription}
+        eyebrow={cmsPage?.eyebrow || t.shopEyebrow}
+        title={cmsPage?.title || t.shopTitle}
+        description={cmsPage?.description || t.shopDescription}
       />
 
       <div className="mt-7 flex flex-wrap gap-2">
