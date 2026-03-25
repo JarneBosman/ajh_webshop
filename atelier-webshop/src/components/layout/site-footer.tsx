@@ -3,8 +3,21 @@
 import Link from "next/link";
 import { useI18n } from "@/context/i18n-context";
 
-export const SiteFooter = () => {
+interface SiteFooterLink {
+  href: string;
+  label: string;
+  external?: boolean;
+}
+
+export const SiteFooter = ({ links: cmsLinks }: { links?: SiteFooterLink[] }) => {
   const { t } = useI18n();
+  const fallbackLinks: SiteFooterLink[] = [
+    { href: "/shop", label: t.footerShop },
+    { href: "/configurator", label: t.footerConfigurator },
+    { href: "/cart", label: t.footerCart },
+  ];
+
+  const links = cmsLinks && cmsLinks.length > 0 ? cmsLinks : fallbackLinks;
 
   return (
     <footer className="border-t border-black/5 bg-white">
@@ -19,15 +32,23 @@ export const SiteFooter = () => {
         </div>
 
         <div className="flex flex-col gap-3 text-sm text-[var(--color-muted)]">
-          <Link href="/shop" className="hover:text-[var(--color-ink)]">
-            {t.footerShop}
-          </Link>
-          <Link href="/configurator" className="hover:text-[var(--color-ink)]">
-            {t.footerConfigurator}
-          </Link>
-          <Link href="/cart" className="hover:text-[var(--color-ink)]">
-            {t.footerCart}
-          </Link>
+          {links.map((link) =>
+            link.external ? (
+              <a
+                key={link.href}
+                href={link.href}
+                target="_blank"
+                rel="noreferrer"
+                className="hover:text-[var(--color-ink)]"
+              >
+                {link.label}
+              </a>
+            ) : (
+              <Link key={link.href} href={link.href} className="hover:text-[var(--color-ink)]">
+                {link.label}
+              </Link>
+            ),
+          )}
         </div>
       </div>
     </footer>

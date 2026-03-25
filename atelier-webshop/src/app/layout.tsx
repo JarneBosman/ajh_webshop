@@ -5,6 +5,7 @@ import "./globals.css";
 import { SiteHeader } from "@/components/layout/site-header";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { CmsPreviewBridge } from "@/components/layout/cms-preview-bridge";
+import { getPublishedNavigationFromStore } from "@/lib/cms-repository";
 import { getSiteSettingsFromStore } from "@/lib/site-settings-repository";
 import { I18nProvider } from "@/context/i18n-context";
 import { languageCookieName, normalizeLanguage } from "@/lib/i18n";
@@ -33,6 +34,10 @@ export default async function RootLayout({
   const cookieStore = await cookies();
   const language = normalizeLanguage(cookieStore.get(languageCookieName)?.value);
   const siteSettings = await getSiteSettingsFromStore();
+  const [headerLinks, footerLinks] = await Promise.all([
+    getPublishedNavigationFromStore("header", language),
+    getPublishedNavigationFromStore("footer", language),
+  ]);
 
   return (
     <html lang={language}>
@@ -58,9 +63,9 @@ export default async function RootLayout({
         <I18nProvider initialLanguage={language}>
           <CmsPreviewBridge />
           <div className="flex min-h-screen flex-col bg-[var(--color-bg)]">
-            <SiteHeader brandName={siteSettings.brandName} />
+            <SiteHeader brandName={siteSettings.brandName} links={headerLinks} />
             <main className="flex-1">{children}</main>
-            <SiteFooter />
+            <SiteFooter links={footerLinks} />
           </div>
         </I18nProvider>
       </body>
